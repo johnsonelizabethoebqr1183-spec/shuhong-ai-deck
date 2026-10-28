@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI + 服装企业全链路定制化解决方案 · 动态版</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;background:#05070A;overflow:hidden;
+    font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    color:#EFF2F6;-webkit-font-smoothing:antialiased}
+  body{cursor:default}
+
+  #stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;
+    transform-origin:center center;background:#05070A;overflow:hidden;
+    box-shadow:0 40px 120px rgba(0,0,0,.8)}
+
+  #gl{position:absolute;inset:-4%;display:block;
+    z-index:1;mix-blend-mode:screen;opacity:.92}
+
+  /* 电影级主视觉：缓慢推轨，永远在动 */
+  .plate{position:absolute;inset:-5%;z-index:0;background-size:cover;background-repeat:no-repeat;
+    overflow:hidden;
+    filter:saturate(1.06) brightness(.66) contrast(1.22) hue-rotate(-2deg);
+    animation:kb var(--dur,24s) cubic-bezier(.45,.05,.55,.95) infinite alternate;
+    animation-delay:var(--dl,0s);
+    translate:calc(var(--mx,0px) * -1) calc(var(--my,0px) * -1);
+    transition:translate .8s cubic-bezier(.2,.8,.2,1);
+    will-change:transform,translate}
+
+  /* 肯·伯恩斯：推近 + 斜向漂移，一圈 20~28 秒，肉眼明确可见 */
+  @keyframes kb{
+    0%  {transform:scale(1.055) translate3d(var(--kx,3%),var(--ky,2%),0)}
+    100%{transform:scale(1.115) translate3d(calc(var(--kx,3%) * -1),calc(var(--ky,2%) * -1),0)}
+  }
+
+  /* 照片上浮动的光尘：让静态底片有“空气感” */
+  .plate::before{content:'';position:absolute;inset:-6%;pointer-events:none;opacity:.30;
+    mix-blend-mode:screen;
+    background-image:
+      radial-gradient(circle,rgba(255,255,255,.95) 0 1px,rgba(255,255,255,0) 1.7px),
+      radial-gradient(circle,rgba(198,246,232,.85) 0 1.2px,rgba(198,246,232,0) 2px);
+    background-size:260px 200px, 430px 320px;
+    background-position:0 0, 130px 90px;
+    animation:dust calc(var(--dur,24s) * 3.2) linear infinite;}
+  @keyframes dust{
+    from{background-position:0 0, 130px 90px}
+    to  {background-position:-260px -200px, 560px 410px}
+  }
+
+  /* 一道光缓慢扫过画面 */
+  .plate::after{content:'';position:absolute;inset:-30%;pointer-events:none;
+    background:radial-gradient(26% 36% at 50% 50%,rgba(206,250,238,.26),rgba(150,210,236,.08) 46%,rgba(0,0,0,0) 72%);
+    mix-blend-mode:screen;
+    animation:sweep calc(var(--dur,24s) * .55) ease-in-out infinite alternate;
+    animation-delay:calc(var(--dl,0s) * .6);will-change:transform,opacity}
+  @keyframes sweep{
+    from{transform:translate3d(-22%,-12%,0) scale(.84);opacity:.16}
+    to  {transform:translate3d(20%,12%,0)  scale(1.26);opacity:.62}
+  }
+
+  /* ---------- 结构 ---------- */
+  .s{position:absolute;inset:0;opacity:0;visibility:hidden;isolation:isolate;
+     transition:opacity .85s ease, transform 1.4s cubic-bezier(.16,.8,.24,1);
+     transform:scale(1.018);pointer-events:none}
+  .s.on{opacity:1;visibility:visible;transform:none;pointer-events:auto}
+
+  .veil{position:absolute;inset:0;pointer-events:none;z-index:2;
+    background:linear-gradient(180deg,rgba(1,3,7,.42) 0%,rgba(1,3,7,0) 26%,rgba(1,3,7,0) 58%,rgba(1,3,7,.62) 100%),
+               linear-gradient(100deg,rgba(1,3,7,.95) 0%,rgba(1,3,7,.88) 22%,rgba(1,3,7,.52) 50%,rgba(1,3,7,.14) 100%)}
+  .s.c .veil{background:linear-gradient(180deg,rgba(1,3,7,.62) 0%,rgba(1,3,7,.34) 38%,rgba(1,3,7,.90) 100%)}
+  .s.rv .veil{background:linear-gradient(180deg,rgba(1,3,7,.42) 0%,rgba(1,3,7,0) 26%,rgba(1,3,7,0) 58%,rgba(1,3,7,.62) 100%),
+                linear-gradient(260deg,rgba(1,3,7,.95) 0%,rgba(1,3,7,.87) 22%,rgba(1,3,7,.50) 52%,rgba(1,3,7,.14) 100%)}
+  .vig{position:absolute;inset:0;pointer-events:none;z-index:3;
+    background:radial-gradient(120% 92% at 50% 45%,transparent 42%,rgba(0,0,0,.44) 100%)}
+
+  .content{position:absolute;inset:0;z-index:4;padding:60px 78px 88px;display:flex;flex-direction:column;justify-content:center}
+
+  /* ---------- 文字层级 ---------- */
+  .lbl{display:flex;align-items:center;gap:11px;font-size:15px;letter-spacing:.34em;
+       text-transform:uppercase;color:rgba(232,238,246,.62)}
+  .lbl i{width:22px;height:1px;background:var(--ac);display:block;
+         box-shadow:0 0 10px var(--ac)}
+  .lbl b{color:var(--ac);font-weight:500;letter-spacing:.2em}
+
+  h1{font-size:64px;line-height:1.24;font-weight:600;letter-spacing:-.01em;margin-top:22px;
+     color:#FBFCFE;text-shadow:0 4px 30px rgba(0,0,0,.85),0 1px 3px rgba(0,0,0,.6)}
+  h2{font-size:46px;line-height:1.38;font-weight:600;letter-spacing:-.005em;margin-top:20px;
+     color:#FBFCFE;text-shadow:0 4px 26px rgba(0,0,0,.85),0 1px 2px rgba(0,0,0,.5)}
+  .thin{font-weight:300;color:rgba(240,244,250,.90)}
+  .em{color:var(--ac)}
+  .serif{font-family:"Didot","Times New Roman",Georgia,serif;font-style:italic;font-weight:400}
+
+  .sub{font-size:19px;line-height:1.95;color:rgba(228,236,246,.78);margin-top:20px;max-width:640px;
+      text-shadow:0 1px 12px rgba(0,0,0,.7)}
+  .fin{font-size:15px;letter-spacing:.16em;color:rgba(226,234,246,.70);line-height:1.9;
+      text-shadow:0 1px 10px rgba(0,0,0,.7)}
+
+  .rule{height:1px;background:linear-gradient(90deg,var(--ac),rgba(255,255,255,.10));margin:26px 0 0;
+        opacity:.5;width:86px}
+
+  /* 入场 */
+  .r{opacity:0;transform:translateY(16px)}
+  .s.on .r{animation:rise .95s cubic-bezier(.16,.8,.24,1) both}
+  .s.on .r:nth-child(1){animation-delay:.05s}
+  .s.on .r:nth-child(2){animation-delay:.15s}
+  .s.on .r:nth-child(3){animation-delay:.26s}
+  .s.on .r:nth-child(4){animation-delay:.37s}
+  .s.on .r:nth-child(5){animation-delay:.48s}
+  .s.on .r:nth-child(6){animation-delay:.59s}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+  /* ---------- 通用组件 ---------- */
+  .split{display:flex;align-items:center;gap:64px}
+  .split > .L{flex:1;min-width:0}
+
+  .glass{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.12);
+         backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:4px}
+
+  /* 痛点行 / 清单 */
+  .rows{display:flex;flex-direction:column;width:100%}
+  .row{display:flex;align-items:flex-start;gap:18px;padding:13px 10px 13px 0;
+       border-top:1px solid rgba(255,255,255,.10);transition:background .35s,padding .35s}
+  .row:last-child{border-bottom:1px solid rgba(255,255,255,.10)}
+  .row .n{font-size:14.5px;letter-spacing:.12em;color:var(--ac);width:22px;flex:none;padding-top:4px;opacity:.85}
+  .row .t{font-size:20px;line-height:1.5;font-weight:500}
+  .row .d{font-size:15.5px;line-height:1.7;color:rgba(228,236,248,.66);margin-top:5px;
+          transition:color .35s}
+  .row:hover{background:linear-gradient(90deg,rgba(255,255,255,.06),transparent);padding-left:12px}
+  .row:hover .d{color:rgba(240,246,252,.82)}
+
+  /* chips */
+  .chips{display:flex;gap:10px;flex-wrap:wrap}
+  .chip{padding:9px 15px;font-size:16.5px;letter-spacing:.04em;border:1px solid rgba(255,255,255,.16);
+        background:rgba(255,255,255,.04);border-radius:2px;transition:.35s;cursor:default}
+  .chip:hover{background:rgba(255,255,255,.10);border-color:var(--ac);color:#fff;transform:translateY(-2px)}
+
+  /* 层 */
+  .stack{display:flex;flex-direction:column;gap:9px;width:100%}
+  .lay{display:flex;align-items:center;gap:20px;padding:15px 20px;border:1px solid rgba(255,255,255,.12);
+       background:linear-gradient(90deg,rgba(255,255,255,.075),rgba(255,255,255,.02));
+       transition:.4s;position:relative;overflow:hidden}
+  .lay::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,var(--ac),transparent 45%);
+              opacity:0;transition:.4s;mix-blend-mode:overlay}
+  .lay:hover{border-color:rgba(255,255,255,.3);transform:translateX(4px)}
+  .lay:hover::after{opacity:.28}
+  .lay .nm{width:104px;flex:none;font-size:18px;font-weight:600}
+  .lay .ds{font-size:16.5px;color:rgba(224,232,244,.62);line-height:1.6}
+  .base{display:flex;align-items:center;gap:14px;padding:12px 20px;border:1px dashed rgba(255,255,255,.22);
+        font-size:16.5px;color:rgba(226,234,246,.70);margin-top:4px;line-height:1.6}
+
+  /* 飞轮 */
+  .wheel{position:relative;width:470px;height:470px;flex:none}
+  .wheel .ring{position:absolute;inset:70px;border-radius:50%;border:1px solid rgba(255,255,255,.22)}
+  .wheel .ring2{position:absolute;inset:118px;border-radius:50%;border:1px dashed rgba(255,255,255,.16)}
+  .wheel .core{position:absolute;left:50%;top:50%;width:132px;height:132px;margin:-66px 0 0 -66px;
+    border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    background:radial-gradient(circle,rgba(255,255,255,.10),rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.18);box-shadow:0 0 60px -10px var(--ac)}
+  .wheel .core b{font-size:19px;letter-spacing:.12em;font-weight:600}
+  .wheel .core span{font-size:14px;letter-spacing:.22em;color:rgba(230,238,246,.5)}
+  .node{position:absolute;width:142px;padding:11px 12px;border-radius:2px;
+        background:rgba(6,9,14,.55);border:1px solid rgba(255,255,255,.14);
+        backdrop-filter:blur(6px);transition:.4s;cursor:default}
+  .node:hover{border-color:var(--ac);transform:translateY(-3px);background:rgba(10,14,20,.8);
+              box-shadow:0 8px 30px -6px rgba(0,0,0,.7)}
+  .node b{display:block;font-size:16px;font-weight:600;line-height:1.35}
+  .node span{display:block;font-size:14.5px;color:rgba(226,234,246,.66);margin-top:3px;letter-spacing:.06em}
+
+  /* 步骤 */
+  .steps{display:flex;flex-direction:column;gap:0;width:100%}
+  .step{display:flex;gap:16px;padding:15px 0;border-top:1px solid rgba(255,255,255,.10);transition:.35s}
+  .step:last-child{border-bottom:1px solid rgba(255,255,255,.10)}
+  .step .sn{font-size:14.5px;letter-spacing:.16em;color:var(--ac);width:26px;flex:none;padding-top:3px}
+  .step .st{font-size:18.5px;font-weight:500;line-height:1.5}
+  .step:hover{padding-left:10px;background:linear-gradient(90deg,rgba(255,255,255,.05),transparent)}
+
+  /* 指标 */
+  .kpis{display:flex;gap:14px;margin-top:30px}
+  .kpi{flex:1;padding:24px 22px;border-left:1px solid var(--ac)}
+  .kpi b{display:block;font-size:44px;font-weight:300;letter-spacing:-.02em}
+  .kpi span{display:block;font-size:16px;color:rgba(230,238,248,.78);margin-top:10px;letter-spacing:.1em}
+
+  /* 漏斗 */
+  .funnel{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;margin-top:4px}
+  .fs{height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;
+      border:1px solid rgba(255,255,255,.18);transition:.4s;cursor:default;
+      background:linear-gradient(90deg,rgba(6,10,15,.68),rgba(6,10,15,.40))}
+  .fs:hover{background:linear-gradient(90deg,var(--ac),rgba(255,255,255,.05));border-color:var(--ac)}
+  .fs b{font-size:16.5px;font-weight:500}
+  .fs span{font-size:14.5px;color:rgba(226,234,246,.74);letter-spacing:.06em}
+
+  /* PDCA */
+  .pdca{position:relative;width:430px;height:430px;flex:none}
+  .pdca .orbit{position:absolute;inset:59px;border-radius:50%;
+      border:1.5px dashed rgba(255,255,255,.34);box-shadow:0 0 0 1px rgba(0,0,0,.28)}
+  .pd{position:absolute;width:118px;height:118px;border-radius:50%;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:2px;border:1px solid rgba(255,255,255,.26);
+      background:rgba(4,7,11,.78);backdrop-filter:blur(2px);transition:.4s;cursor:default}
+  .pd:hover{border-color:var(--ac);box-shadow:0 0 44px -8px var(--ac);transform:scale(1.06)}
+  .pd i{font-size:32px;font-style:normal;font-weight:300;line-height:1;color:var(--ac)}
+  .pd b{font-size:14.5px;letter-spacing:.18em;font-weight:500}
+  .pd span{font-size:14px;color:rgba(226,234,246,.66);letter-spacing:.08em}
+
+  /* 词墙 */
+  .words{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:rgba(255,255,255,.09);
+         border:1px solid rgba(255,255,255,.09);width:100%}
+  .word{background:rgba(5,8,12,.62);padding:26px 22px;transition:.45s;cursor:default}
+  .word b{display:block;font-size:32px;font-weight:500;letter-spacing:.04em}
+  .word span{display:block;font-size:15.5px;color:rgba(226,234,246,.70);margin-top:7px;line-height:1.7}
+  .word:hover{background:rgba(255,255,255,.07);transform:translateY(-2px)}
+  .word:hover b{color:var(--ac)}
+
+  /* 时间轴 */
+  .line{position:relative;height:1px;background:rgba(255,255,255,.16);width:100%;margin:56px 0 0}
+  .line .dot{position:absolute;top:-3.5px;width:8px;height:8px;border-radius:50%;background:#fff;
+             box-shadow:0 0 0 4px rgba(255,255,255,.08);transform:translateX(-50%)}
+  .stops{display:flex;justify-content:space-between;width:100%;margin-top:0}
+  .stop{width:19%;padding-top:22px;position:relative;transition:.4s;cursor:default}
+  .stop:hover{transform:translateY(-4px)}
+  .stop b{display:block;font-size:18.5px;font-weight:600}
+  .stop span{display:block;font-size:15.5px;color:rgba(226,234,246,.68);margin-top:6px;line-height:1.7}
+  .stop em{display:block;font-size:14px;letter-spacing:.2em;color:var(--ac);font-style:normal;margin-bottom:8px}
+
+  /* 引言 */
+  .quote{font-size:21px;line-height:1.95;color:rgba(238,243,250,.86);padding-left:18px;
+         border-left:1px solid var(--ac);max-width:560px}
+
+  /* ---------- HUD ---------- */
+  #hud{position:absolute;inset:0;pointer-events:none;opacity:.78;transition:opacity .4s}
+  body:hover #hud{opacity:1}
+  #prog{position:absolute;left:0;top:0;height:2px;width:100%;background:rgba(255,255,255,.06);z-index:9}
+  #prog i{display:block;height:100%;width:0;background:var(--ac);box-shadow:0 0 10px var(--ac);opacity:.85;transition:width .6s cubic-bezier(.2,.8,.2,1);
+          box-shadow:0 0 12px var(--ac)}
+  .hL{position:absolute;left:78px;bottom:30px;font-size:14.5px;letter-spacing:.26em;color:rgba(226,234,246,.74);
+      text-transform:uppercase}
+  .hL span{color:rgba(226,234,246,.55);margin-left:12px;letter-spacing:.14em}
+  .hR{position:absolute;right:78px;bottom:24px;display:flex;align-items:center;gap:6px;pointer-events:auto}
+  .hR button{width:30px;height:30px;border:1px solid rgba(255,255,255,.16);background:transparent;
+      color:rgba(240,244,250,.78);font-size:15px;cursor:pointer;transition:.3s;border-radius:3px;
+      display:flex;align-items:center;justify-content:center;font-family:inherit}
+  .hR button#mus.on{background:var(--ac);border-color:var(--ac);color:#08110f;
+    box-shadow:0 0 16px -3px var(--ac)}
+  .hR button:hover{border-color:var(--ac);color:#fff;background:rgba(255,255,255,.08)}
+  #cnt{font-size:14.5px;letter-spacing:.14em;color:rgba(232,240,248,.76);margin:0 8px;font-variant-numeric:tabular-nums}
+  #dots{position:absolute;left:50%;bottom:32px;transform:translateX(-50%);display:flex;gap:7px;pointer-events:auto}
+  #dots i{width:16px;height:1px;background:rgba(255,255,255,.22);cursor:pointer;transition:.35s}
+  #dots i:hover{background:rgba(255,255,255,.5)}
+  #dots i.on{background:var(--ac);width:30px;box-shadow:0 0 10px var(--ac)}
+
+  body.static *,body.static *::before,body.static *::after{
+    animation-duration:0s!important;animation-delay:0s!important;transition:none!important}
+  body.static .r{opacity:1!important;transform:none!important}
+  body.static .s{transition:none!important}
+
+  /* ---------- 无 WebGL 兜底 ---------- */
+  body.nogl #gl{display:none}
+  body.nogl{background:
+     radial-gradient(60% 50% at 70% 40%,rgba(120,150,200,.30),transparent 70%),
+     radial-gradient(50% 40% at 20% 80%,rgba(90,120,170,.20),transparent 70%),
+     #05070A;
+     animation:noglShift 18s ease-in-out infinite alternate}
+  @keyframes noglShift{from{background-position:0 0,0 0,0 0}to{background-position:30px -20px,-40px 20px,0 0}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="gl" width="1280" height="720"></canvas>
+
+  <!-- ============ 01 封面 ============ -->
+  <section class="s" data-ac="#D2EEE6" data-c1="#AEF2DC" data-mode="1" data-c2="#AEF2DC" data-seed="0.12" data-cx="0.7" data-cy="0.3">
+    <div class="plate" style="background-image:url('assets/plates/p1.jpg');background-position:50% 46%;--dur:26s;--dl:-4s;--kx:3.2%;--ky:-2.2%"></div>
+    <div class="veil"></div><div class="vig"></div>
+    <div class="content">
+      <div class="lbl r"><i></i><b>AI × APPAREL</b> 2026 · 定制方案</div>
+      <h1 class="r">AI + 服装企业<br><span class="thin">全链路定制化解决方案</span></h1>
+      <div class="rule r"></div>
+      <p class="sub r">让 AI 进入企业业务生态，形成从流量到研发、<br>从运营到组织的闭环。</p>
+      <p class="fin r" style="margin-top:26px;font-size:16px;color:rgba(232,240,250,.84)">湖州素红网络科技有限公司&nbsp;&nbsp;·&nbsp;&nbsp;主讲人：李黎&nbsp;&nbsp;·&nbsp;&nbsp;2026.10.29</p>
+    </div>
+  </section>
+
+  <!-- ============ 02 一句话定位 ============ -->
+  <section class="s rv" data-ac="#CBEAE0" data-c1="#9FE8D2" data-mode="2" data-c2="#9FE8D2" data-seed="0.7" data-cx="0.68" data-cy="0.34">
+    <div class="plate" style="background-image:url('assets/plates/q1.jpg');background-position:52% 50%;--dur:23s;--dl:-15s;--kx:-3.4%;--ky:2.0%"></div>
+    <div class="veil"></div><div class="vig"></div>
+    <div class="content">
+      <div class="lbl r"><i></i><b>01</b> Positioning</div>
+      <h2 class="r">我们卖的不是一个工具，<br><span class="thin">是一套长在业务里的闭环。</span></h2>
+      <div class="rule r"></div>
+      <p class="quote r" style="margin-top:26px">AI 就是外挂。<br>区别只在于：它长在你的业务里，<br>还是停在别人的工具里。</p>
+      <div class="chips r" style="margin-top:28px">
+        <div class="chip">原生接入现有系统</div>
+        <div class="chip">按业务链路定制生长</div>
+        <div class="chip">可复制到餐饮等招商加盟行业</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 行业痛点 ============ -->
+  <section class="s" data-ac="#A9C4CC" data-c1="#6D9FB4" data-mode="3" data-c2="#6D9FB4" data-seed="0.31" data-cx="0.5" data-cy="0.4">
+    <div class="plate" style="background-image:url('assets/plates/p3.jpg');background-position:50% 50%;--dur:28s;--dl:-8s;--kx:2.8%;--ky:2.4%"></div>
+    <div class="veil"></div><div class="vig"></div>
+    <div class="content">
+      <div class="split">
+        <div class="L">
+          <div class="lbl r"><i></i><b>02</b> Why now</div>
+          <h2 class="r">六个卡点，<br><span class="thin">卡在同一条链上。</span></h2>
+          <p class="sub r" style="font-size:17px;margin-top:18px">工具越买越多，业务却越来越碎。<br>问题不在单点，在链路上。</p>
+        </div>
+        <div style="width:620px;flex:none">
+          <div class="rows r" style="padding:8px 22px 8px 18px;background:linear-gradient(96deg,rgba(3,6,10,.70) 0%,rgba(3,6,10,.56) 56%,rgba(3,6,10,.34) 100%);backdrop-filter:blur(1.5px)">
+            <div class="row"><span class="n">01</span><div><div class="t">流量成本高，素材生产慢</div><div class="d">图文、短视频、直播、千川素材持续供给压力大</div></div></div>
+            <div class="row"><span class="n">02</span><div><div class="t">数据分散，决策靠经验</div><div class="d">营销、运营、供应链数据没有形成统一分析</div></div></div>
+            <div class="row"><span class="n">03</span><div><div class="t">研发周期长，版型靠手感</div><div class="d">反复出款改版，筛选依赖设计师个人经验</div></div></div>
+            <div class="row"><span class="n">04</span><div><div class="t">跟单繁琐，信息易断点</div><div class="d">信息在部门、表格、群聊之间流转，容易掉线</div></div></div>
+            <div class="row"><span class="n">05</span><div><div class="t">招商获客效率低</div><div class="d">意向初筛耗时，人工跟进成本高</div></div></div>
+            <div class="row"><span class="n">06</span><div><div class="t">部门协同断层</div><div class="d">目标、任务、会议纪要、执行结果没有形成闭环</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 方案总览 ============ -->
+  <section class="s" data-ac="#C6E5EA" data-c1="#93E0E8" data-mode="4" data-c2="#93E0E8" data-seed="0.55" data-cx="0.62" data-cy="0.3">
+    <div class="plate" style="background-image:url('assets/plates/p4.jpg');background-position:34% 46%;--dur:25s;--dl:-20s;--kx:-2.9%;--ky:-1.9%"></div>
+    <div class="veil"></div><div class="vig"></div>
+    <div class="content">
+      <div class="lbl r"><i></i><b>03</b> Overview</div>
+      <h2 class="r">一个定位，四层架构，<br><span class="thin">六大模块，一个闭环。</span></h2>
+      <div class="split r" style="margin-top:28px;gap:14px;align-items:stretch">
+        <div class="glass" style="flex:1;padding:18px 20px">
+          <div class="fin" style="color:var(--ac);letter-spacing:.22em">POSITION</div>
+          <div style="font-size:16px;line-height:1.78;margin-top:10px">面向服装企业的 AI<br>定制化全链路方案：<br>原生接入，按业务生长</div>
+        </div>
+        <div class="glass" style="flex:1;padding:18px 20px">
+          <div class="fin" style="color:var(--ac);letter-spacing:.22em">ARCHITECTURE</div>
+          <div style="font-size:16px;line-height:1.85;margin-top:10px">前端增长 · 中台运营<br>后端业务 · 组织协同</div>
+        </div>
+        <div class="glass" style="flex:1;padding:18px 20px">
+          <div class="fin" style="color:var(--ac);letter-spacing:.22em">MODULES</div>
+          <div style="font-size:16px;line-height:1.85;margin-top:10px">营销自动化 · 数据运营<br>设计研发 · 供应链<br>外呼 · 部门协同</div>
+        </div>
+        <div class="glass" style="flex:1;padding:18px 20px">
+          <div class="fin" style="color:var(--ac);letter-spacing:.22em">LOOP</div>
+          <div style="font-size:16px;line-height:1.85;margin-top:10px">Plan · Do · Check · Act<br>每天转一圈。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 05 闭环飞轮 ============ -->
+  <section class="s" data-ac="#C2EADF" data-c1="#86E2CE" data-mode="5" data-c2="#86E2CE" data-seed="0.2" data-cx="0.755" data-cy="0.42">
+    <div class="plate" style="background-image:url('assets/plates/q2.jpg');background-size:138% auto;background-position:38% 70%;--dur:21s;--dl:-12s;--kx:3.5%;--ky:1.8%"></div>
+    <div class="veil"></div><div class="vig"></div>
+    <div class="content">
+      <div class="split" style="gap:40px">
+        <div class="L">
+          <div class="lbl r"><i></i><b>04</b> Flywheel</div>
+          <h2 class="r">数据回流前端，<br><span class="thin">飞轮才开始转。</span></h2>
+          <p class="sub r" style="font-size:17px">前端获客 → 高意向线索与智能外呼 → 数据分析<br>→ 设计研发 → 供应链与生产 → 部门协同 → 回到前端</p>
+        </div>
+        <div class="wheel r">
+          <div class="ring"></div><div class="ring2"></div>
+          <div class="core"><b>PDCA</b><span>每天转一圈</span></div>
+          <div class="node" style="left:164px;top:8px"><b>流量与营销</b><span>素材自动化</span></div>
+          <div class="node" style="left:320px;top:112px"><b>线索与外呼</b><span>AI 初筛</span></div>
+          <div class="node" style="left:320px;top:290px"><b>数据分析</b><span>经营 / 运维</span></div>
+          <div class="node" style="left:164px;top:394px"><b>设计研发</b><span>出款提速</span></div>
+          <div class="node" style="left:8px;top:290px"><b>供应链跟单</b><span>生产协同</span></div>
+          <div class="node" style="left:8px;top:112px"><b>部门协同</b><span>任务闭环</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 06 模块一 ============ -->
+  <section class="s" data-ac="#CDEDE7" data-c1="#A2E8DE" data-mode="6" data-c2="#A2E8DE" data-seed="0.44" data-cx="0.68" data-cy="0.3">
+    <div class="plate" style="background-image:url('assets/plates/p2.jpg');background-position:30% 52%;--dur:26s;--dl:-14s;--kx:-3.1%;--ky:2.2%"></div>
+    <div class="veil"></div><div class="vig"></div>
+    <div class="content">
+      <div class="lbl r"><i></i><b>05</b> Module 01 · 流量与营销自动化</div>
+      <h2 class="r">素材不该是瓶颈。</h2>
+      <p class="sub r">图文引流、短视频投放、直播素材、千川投放素材自动生产，<br>按品牌调性、产品卖点和活动节奏定制输出。</p>
+      <div class="chips r" style="margin-top:30px">
+        <div class="chip">图文引流内容</div>
+        <div class="chip">短视频 / 投放素材</div>
+        <div class="chip">直播素材辅助</div>
+        <div class="chip">千川素材机器人</div>
+      </div>
+      <p class="fin r" style="margin-top:30px">价值 · 内容产能成倍释放，把人从重复劳动里解放出来，精力回到策略与转化</p>
+    </div>
+  </section>
+
+  <!-- ============ 07 模块二 ============ -->
+  <section class="s" data-ac="#C4E3EB" data-c1="#8ED8E4" data-mode="7" data-c2="#8ED8E4" data-seed="0.63" data-cx="0.6" data-cy="0.34">
+    <div class="plate" style="background-image:url('assets/plates/p5.jpg');background-position:38% 56%;--dur:23s;--dl:-9s;--kx:3.0%;--ky:-2.4%"></div>
+    <div class="veil"></div><div class="vig"></div>
+    <div class="content">
+      <div class="lbl r"><i></i><b>06</b> Module 02 · 数据与运营</div>
+      <h2 class="r">从「看完就结束」<br><span class="thin">到「分析—建议—任务—复盘」。</span></h2>
+      <div class="kpis r">
+        <div class="kpi"><b class="serif">T+0</b><span>经营异常当日浮现</span></div>
+        <div class="kpi"><b class="serif">每日</b><span>运营动作自动建议</span></div>
+        <div class="kpi"><b class="serif">100%</b><span>任务闭环全程留痕</span></div>
+      </div>
+      <p class="fin r" style="margin-top:30px">接入现有数据 → 经营 / 运营 / 运维分析 → 看板与日报周报 → 异常归因 → 任务发布</p>
+      <p class="r" style="margin-top:34px;font-size:18px;letter-spacing:.06em;color:rgba(236,244,252,.86)">
+        价值 · <span style="color:var(--ac)">经营看得见，动作有建议，任务有回音。</span></p>
+    </div>
+  </section>
+
+  <!-- ============ 08 模块三 ============ -->
+  <section class="s rv" data-ac="#CAE8DE" data-c1="#9CE6D4" data-mode="8" data-c2="#9CE6D4" data-seed="0.18" data-cx="0.4" data-cy="0.3">
+    <div class="plate" style="background-image:url('assets/plates/q3.jpg');background-size:116% auto;background-position:42% 52%;--dur:27s;--dl:-3s;--kx:-3.3%;--ky:-1.8%"></div>
+    <div class="veil"></div><div class="vig"></div>
+    <div class="content">
+      <div class="split">
+        <div class="L">
+          <div class="lbl r"><i></i><b>07</b> Module 03 · 设计研发</div>
+          <h2 class="r">设计师，<br><span class="thin">和 Agent 一起出款。</span></h2>
+          <p class="sub r" style="font-size:17px">接入主流设计软件，用对话快速产出多个版型方向，<br>用数据筛选，辅助确定版型进入研发。</p>
+        </div>
+        <div style="width:520px;flex:none" class="r">
+          <div class="glass" style="padding:18px 20px">
+            <div class="fin" style="letter-spacing:.2em;margin-bottom:14px">研发对话 · 示例</div>
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <div style="align-self:flex-end;max-width:330px;padding:10px 14px;font-size:17px;line-height:1.6;
+                          background:rgba(182,239,220,.14);border:1px solid rgba(182,239,220,.34);border-radius:3px">
+                落肩直筒裙，通勤，垂感面料。</div>
+              <div style="align-self:flex-start;max-width:350px;padding:10px 14px;font-size:17px;line-height:1.6;
+                          background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:3px">
+                已出 6 个版型，按售罄率排序。</div>
+              <div style="align-self:flex-end;max-width:330px;padding:10px 14px;font-size:17px;line-height:1.6;
+                          background:rgba(182,239,220,.14);border:1px solid rgba(182,239,220,.34);border-radius:3px">
+                第 3 版再来个短版。</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:14px;padding-top:12px;
+                        border-top:1px solid rgba(255,255,255,.1);font-size:15px;color:rgba(226,234,246,.68)">
+              <span>可指定维度</span><span style="color:var(--ac)">廓形 · 面料 · 场景 · 价格带</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 09 模块四 ============ -->
+  <section class="s rv" data-ac="#CFEBE5" data-c1="#A4E4DA" data-mode="9" data-c2="#A4E4DA" data-seed="0.5" data-cx="0.68" data-cy="0.28">
+    <div class="plate" style="background-image:url('assets/plates/q2.jpg');background-position:50% 62%;--dur:20s;--dl:-17s;--kx:3.0%;--ky:2.2%"></div>
+    <div class="veil"></div><div class="vig"></div>
+    <div class="content">
+      <div class="lbl r"><i></i><b>08</b> Module 04 · 供应链与生产协同</div>
+      <h2 class="r">每一张单，<br><span class="thin">都能被查到、被提醒、被分析。</span></h2>
+      <div class="steps r" style="margin-top:22px;max-width:780px">
+        <div class="step"><span class="sn">01</span><div class="st">订单接入 · 节点结构化<div class="fin" style="margin-top:4px">款号、数量、面料、交期一次对齐</div></div></div>
+        <div class="step"><span class="sn">02</span><div class="st">进度跟踪 · 异常早发现<div class="fin" style="margin-top:4px">关键节点自动提醒，不让问题过夜</div></div></div>
+        <div class="step"><span class="sn">03</span><div class="st">跨部门联动<div class="fin" style="margin-top:4px">设计、运营、销售共享同一份状态</div></div></div>
+        <div class="step"><span class="sn">04</span><div class="st">交付可复盘<div class="fin" style="margin-top:4px">跟单数据回流分析，进入下一轮改进</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 10 模块五 ============ -->
+  <section class="s" data-ac="#C4E4E8" data-c1="#8FDCE8" data-mode="10" data-c2="#8FDCE8" data-seed="0.28" data-cx="0.4" data-cy="0.32">
+    <div class="plate" style="background-image:url('assets/plates/p6.jpg');background-position:72% 50%;--dur:24s;--dl:-24s;--kx:-3.0%;--ky:1.9%"></div>
+    <div class="veil"></div><div class="vig"></div>
+    <div class="content">
+      <div class="split" style="gap:48px">
+        <div class="L" style="max-width:430px">
+          <div class="lbl r"><i></i><b>09</b> Module 05 · 线索与招商</div>
+          <h2 class="r">AI 做规模初筛，<br><span class="thin">人做高价值转化。</span></h2>
+          <p class="sub r" style="font-size:16.5px">线索来源清晰可查，外呼全程留痕；<br>规模交给 AI，转化交给人。</p>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div class="funnel r">
+            <div class="fs" style="width:100%"><b>可追溯线索获取</b><span>公开 · 授权 · 可核验</span></div>
+            <div class="fs" style="width:91%"><b>清洗 · 去重 · 标签化</b><span>只留有效信息</span></div>
+            <div class="fs" style="width:82%"><b>意向分级</b><span>先分层，再分配</span></div>
+            <div class="fs" style="width:73%"><b>AI 智能外呼初筛</b><span>规模化触达</span></div>
+            <div class="fs" style="width:64%"><b>店铺 / 加盟意向筛查</b><span>筛出高意向</span></div>
+            <div class="fs" style="width:55%"><b>人工深度跟进</b><span>人接手，做转化</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 11 模块六 ============ -->
+  <section class="s" data-ac="#D0EBE2" data-c1="#A6E6D6" data-mode="11" data-c2="#A6E6D6" data-seed="0.36" data-cx="0.4" data-cy="0.34">
+    <div class="plate" style="background-image:url('assets/plates/p1.jpg');background-size:124% auto;background-position:62% 38%;--dur:23s;--dl:-7s;--kx:3.4%;--ky:-2.0%"></div>
+    <div class="veil"></div><div class="vig"></div>
+    <div class="content">
+      <div class="split" style="gap:40px">
+        <div class="L">
+          <div class="lbl r"><i></i><b>10</b> Module 06 · 部门协同</div>
+          <h2 class="r">每天转一圈，<br><span class="thin">闭环才成立。</span></h2>
+          <p class="sub r" style="font-size:17px">AI 接入各部门，打通业务状态；<br>按阶段目标发布任务，会议纪要自动转任务，<br>跟进、回收、再分析、再发布。</p>
+        </div>
+        <div class="pdca r">
+          <div class="orbit"></div>
+          <div class="pd" style="left:156px;top:0"><i>P</i><b>PLAN</b><span>目标拆任务</span></div>
+          <div class="pd" style="left:312px;top:156px"><i>D</i><b>DO</b><span>每日执行</span></div>
+          <div class="pd" style="left:156px;top:312px"><i>C</i><b>CHECK</b><span>回收与复盘</span></div>
+          <div class="pd" style="left:0;top:156px"><i>A</i><b>ACT</b><span>再分析再发布</span></div>
+          <div style="position:absolute;left:50%;top:50%;width:126px;height:126px;margin:-63px 0 0 -63px;
+                      border-radius:50%;border:1px solid rgba(255,255,255,.38);display:flex;
+                      align-items:center;justify-content:center;font-size:16px;letter-spacing:.18em;
+                      color:rgba(240,246,252,.94);background:rgba(4,7,11,.62);backdrop-filter:blur(2px);
+                      box-shadow:0 0 30px -10px rgba(0,0,0,.9)">每天</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 12 架构 ============ -->
+  <section class="s rv" data-ac="#C2E2EA" data-c1="#8AD6E2" data-mode="12" data-c2="#8AD6E2" data-seed="0.72" data-cx="0.6" data-cy="0.28">
+    <div class="plate" style="background-image:url('assets/plates/p5.jpg');background-size:122% auto;background-position:60% 28%;--dur:27s;--dl:-15s;--kx:-3.2%;--ky:2.4%"></div>
+    <div class="veil"></div><div class="vig"></div>
+    <div class="content">
+      <div class="lbl r"><i></i><b>11</b> Architecture</div>
+      <h2 class="r">四层，<br><span class="thin">长在现有系统上。</span></h2>
+      <div class="stack r" style="margin-top:30px">
+        <div class="lay"><span class="nm">组织协同层</span><span class="ds">目标拆解 · 任务发布 · 会议纪要转任务 · PDCA 复盘</span></div>
+        <div class="lay"><span class="nm">后端业务层</span><span class="ds">设计研发智能体 · 供应链跟单 · 生产协同</span></div>
+        <div class="lay"><span class="nm">中台运营层</span><span class="ds">经营分析 · 运营 / 运维分析 · 数据看板与日报周报</span></div>
+        <div class="lay"><span class="nm">前端增长层</span><span class="ds">图文 · 短视频 · 直播 · 千川素材自动化生产</span></div>
+        <div class="base"><span style="color:var(--ac)">◆</span>企业现有系统与数据：ERP / 设计软件 / 供应链表格 / 协作工具 —— 原生接入，既有投入继续增值</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 13 合规 ============ -->
+  <section class="s rv" data-ac="#D0ECE6" data-c1="#A8E4DC" data-mode="13" data-c2="#A8E4DC" data-seed="0.14" data-cx="0.34" data-cy="0.3">
+    <div class="plate" style="background-image:url('assets/plates/q4.jpg');background-position:52% 44%;filter:brightness(.46) contrast(1.24) saturate(.92);--dur:22s;--dl:-22s;--kx:2.9%;--ky:-2.2%"></div>
+    <div class="veil"></div><div class="vig"></div>
+    <div class="content">
+      <div class="lbl r"><i></i><b>12</b> Trust</div>
+      <h2 class="r">底座稳了，<br><span class="thin">才谈得上跑得快。</span></h2>
+      <div class="rows r" style="margin-top:26px;max-width:820px;padding:8px 24px 8px 18px;background:linear-gradient(96deg,rgba(3,6,10,.66) 0%,rgba(3,6,10,.50) 60%,rgba(3,6,10,.30) 100%);backdrop-filter:blur(1.5px)">
+        <div class="row"><span class="n">01</span><div class="t">数据来源清晰可查：公开、授权、可核验</div></div>
+        <div class="row"><span class="n">02</span><div class="t">权限分级、敏感字段脱敏</div></div>
+        <div class="row"><span class="n">03</span><div class="t">操作与外呼全程留痕</div></div>
+        <div class="row"><span class="n">04</span><div class="t">频控、退订、录音留存三项机制</div></div>
+        <div class="row"><span class="n">05</span><div class="t">数据用途与授权范围一一对应</div></div>
+        <div class="row"><span class="n">06</span><div class="t">属地合规落地，交付前完成评审</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 14 落地路径 ============ -->
+  <section class="s" data-ac="#CCEDE6" data-c1="#9AE0D8" data-mode="14" data-c2="#9AE0D8" data-seed="0.42" data-cx="0.68" data-cy="0.32">
+    <div class="plate" style="background-image:url('assets/plates/q3.jpg');background-size:126% auto;background-position:-20% 46%;filter:brightness(.52) contrast(1.26) saturate(1.04);--dur:25s;--dl:-5s;--kx:-3.5%;--ky:-1.6%"></div>
+    <div class="veil"></div><div class="vig"></div>
+    <div class="content">
+      <div class="lbl r"><i></i><b>13</b> Roadmap</div>
+      <h2 class="r">五步，<br><span class="thin">从诊断走到生态。</span></h2>
+      <div class="line r">
+        <span class="dot" style="left:8%"></span>
+        <span class="dot" style="left:29%"></span>
+        <span class="dot" style="left:50%"></span>
+        <span class="dot" style="left:71%"></span>
+        <span class="dot" style="left:92%"></span>
+      </div>
+      <div class="stops r">
+        <div class="stop"><em>STEP 01</em><b>诊断</b><span>梳理业务流程<br>数据、工具与部门目标</span></div>
+        <div class="stop"><em>STEP 02</em><b>试点</b><span>选一个高价值场景<br>素材 / 研发 / 外呼</span></div>
+        <div class="stop"><em>STEP 03</em><b>集成</b><span>接入设计软件<br>数据系统与协作流程</span></div>
+        <div class="stop"><em>STEP 04</em><b>推广</b><span>单部门到多部门<br>形成任务闭环</span></div>
+        <div class="stop"><em>STEP 05</em><b>迭代</b><span>按数据反馈优化<br>长成企业专属生态</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 15 客户价值 ============ -->
+  <section class="s c" data-ac="#D8F1E8" data-c1="#BCF2DE" data-mode="15" data-c2="#BCF2DE" data-seed="0.08" data-cx="0.66" data-cy="0.3">
+    <div class="plate" style="background-image:url('assets/plates/p2.jpg');background-size:120% auto;background-position:72% 42%;--dur:24s;--dl:-13s;--kx:3.2%;--ky:2.1%"></div>
+    <div class="veil"></div><div class="vig"></div>
+    <div class="content">
+      <div class="lbl r"><i></i><b>14</b> Value</div>
+      <h2 class="r" style="margin-bottom:26px">六个词，<br><span class="thin">说的是同一件事。</span></h2>
+      <div class="words r">
+        <div class="word"><b>提效率</b><span>内容、设计、外呼、跟单同时提速</span></div>
+        <div class="word"><b>降成本</b><span>减少重复劳动，让人只做高价值判断</span></div>
+        <div class="word"><b>强决策</b><span>数据分析辅助经营与运营决策</span></div>
+        <div class="word"><b>通协同</b><span>打通部门状态，形成 PDCA 闭环</span></div>
+        <div class="word"><b>可复制</b><span>服装为主，餐饮等招商加盟行业可复制</span></div>
+        <div class="word"><b>成生态</b><span>不是单点工具，是企业自己的 AI 业务生态</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 16 结语 ============ -->
+  <section class="s c" data-ac="#D6EFE7" data-c1="#B6EFDC" data-mode="16" data-c2="#B6EFDC" data-seed="0.9" data-cx="0.62" data-cy="0.3">
+    <div class="plate" style="background-image:url('assets/plates/q1.jpg');background-position:50% 44%;--dur:26s;--dl:-9s;--kx:-2.9%;--ky:2.3%"></div>
+    <div class="veil"></div><div class="vig"></div>
+    <div class="content" style="align-items:center;text-align:center">
+      <div class="lbl r" style="justify-content:center"><i></i><b>15</b> Closing</div>
+      <h1 class="r" style="font-size:68px;margin-top:26px">AI 就是外挂。</h1>
+      <p class="r" style="font-size:23px;line-height:1.85;color:rgba(232,240,250,.82);margin-top:18px">
+        区别只在于：它长在你的业务里，<br>还是停在别人的工具里。</p>
+      <div class="rule r" style="width:60px;margin:30px auto 0"></div>
+      <p class="r" style="font-size:16.5px;letter-spacing:.1em;color:rgba(222,234,248,.72);margin-top:26px">
+        让科技真正走进你的生产力，为你提升业绩。</p>
+      <p class="r" style="font-size:32px;letter-spacing:.04em;color:var(--ac);font-weight:500;margin-top:20px;
+         text-shadow:0 0 32px rgba(182,239,220,.34)">这本来就是生意该有的样子。</p>
+      <p class="r" style="font-size:16px;letter-spacing:.14em;color:rgba(232,242,252,.74);margin-top:34px">
+        湖州素红网络科技有限公司&nbsp;&nbsp;·&nbsp;&nbsp;主讲人：李黎&nbsp;&nbsp;·&nbsp;&nbsp;2026.10.29</p>
+    </div>
+  </section>
+
+  <!-- HUD -->
+  <div id="hud">
+    <div id="prog"><i></i></div>
+    <div class="hL">AI × Apparel<span>全链路定制化解决方案</span></div>
+    <div id="dots"></div>
+    <div class="hR">
+      <button id="prev" title="上一页">←</button>
+      <span id="cnt">01 / 16</span>
+      <button id="next" title="下一页">→</button>
+      <button id="mus" title="背景音乐（M 键切换）">♪</button>
+      <button id="play" title="自动播放">▷</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   动态背景：WebGL 片元着色器，逐帧计算，无任何图片素材
+   ========================================================= */
+const cv = document.getElementById('gl');
+const gl = cv.getContext('webgl', {antialias:false, alpha:false, depth:false, stencil:false,
+                                   powerPreference:'high-performance'});
+const STATIC = new URLSearchParams(location.search).has('static');
+if(STATIC) document.body.classList.add('static');
+
+const VERT = `
+attribute vec2 aP;
+void main(){ gl_Position = vec4(aP, 0.0, 1.0); }
+`;
+
+const FRAG = `
+precision highp float;
+uniform vec2  uRes;
+uniform float uT;
+uniform vec2  uM;
+uniform vec3  uC1;
+uniform vec3  uC2;
+uniform float uMode;
+uniform float uSeed;
+uniform vec2  uO;
+
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453123); }
+
+float noise(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  f = f*f*(3.0-2.0*f);
+  float a = hash(i), b = hash(i+vec2(1.0,0.0));
+  float c = hash(i+vec2(0.0,1.0)), d = hash(i+vec2(1.0,1.0));
+  return mix(mix(a,b,f.x), mix(c,d,f.x), f.y);
+}
+float fbm(vec2 p){
+  float v = 0.0, a = 0.5;
+  for(int i=0;i<3;i++){ v += a*noise(p); p *= 2.03; a *= 0.5; }
+  return v;
+}
+
+void main(){
+  vec2 uv  = gl_FragCoord.xy / uRes;
+  float asp = uRes.x / uRes.y;
+  float t = uT;
+  vec2  m = uM;
+  int   M = int(uMode + 0.5);
+  float sd = uSeed;
+
+  /* ===== 每页只改“事件强度”，光是同一套光 ===== */
+  float fShaft = 1.00;   // 体积光
+  float fPart  = 1.00;   // 悬浮微尘
+  float fFall  = 0.00;   // 下落/上升的粒子流
+  float fRing  = 0.00;   // 环绕轨道
+  float dirY   = -1.0;
+
+  if(M == 1){  fShaft=1.15; fPart=1.10; fFall=0.90; }
+  else if(M == 2){  fShaft=1.10; fPart=1.00; fRing=0.75; }
+  else if(M == 3){  fShaft=0.45; fPart=0.55; }
+  else if(M == 4){  fShaft=0.90; fPart=0.90; }
+  else if(M == 5){  fShaft=0.80; fPart=0.85; fRing=1.15; }
+  else if(M == 6){  fShaft=0.85; fPart=1.00; fFall=0.75; dirY=1.0; }
+  else if(M == 7){  fShaft=0.75; fPart=1.05; }
+  else if(M == 8){  fShaft=1.00; fPart=0.95; fFall=0.80; }
+  else if(M == 9){  fShaft=0.80; fPart=1.10; }
+  else if(M == 10){ fShaft=0.95; fPart=0.90; fFall=0.70; }
+  else if(M == 11){ fShaft=0.85; fPart=1.10; }
+  else if(M == 12){ fShaft=0.80; fPart=0.85; }
+  else if(M == 13){ fShaft=0.60; fPart=0.90; }
+  else if(M == 14){ fShaft=0.85; fPart=1.00; fFall=0.60; }
+  else if(M == 15){ fShaft=1.20; fPart=1.10; fFall=0.85; }
+  else {            fShaft=1.00; fPart=1.20; dirY=1.0; }
+
+  /* ===== 镜头：极慢推轨 + 微抖 + 视差 ===== */
+  vec2 q = vec2((uv.x - 0.5) * asp, uv.y - 0.5);
+  q *= 1.0 + 0.008 * sin(t * 0.050 + sd * 6.0);
+  q += vec2(sin(t*0.57) * 0.0009, cos(t*0.49) * 0.0008);
+  q += vec2(m.x * 0.014, -m.y * 0.010);
+
+  vec2 L = vec2((uO.x - 0.5) * asp * 0.92, 0.5 - uO.y);
+  L.x = clamp(L.x, -0.80, 0.80);
+  L.y = clamp(L.y, -0.40, 0.40);
+
+  vec3 acc = vec3(0.0);
+
+  /* ===== 体积光：沿主轴散开的柔光 ===== */
+  vec2  rl = q - L;
+  float dc = length(rl);
+  for(int i = 0; i < 5; i++){
+    float fi  = float(i);
+    float ang = -1.5708 + (fi - 2.0) * 0.24
+              + sin(t*0.09 + fi*2.1) * 0.030
+              + (hash(vec2(fi*1.7, sd*9.0)) - 0.5) * 0.18;
+    vec2  dir = vec2(cos(ang), sin(ang));
+    vec2  rel = q - L;
+    float along = dot(rel, dir);
+    float perp  = abs(rel.x*dir.y - rel.y*dir.x);
+    float body  = exp(-perp*perp*90.0) * 0.55 + exp(-perp*perp*620.0) * 0.45;
+    float reach = smoothstep(-0.05, 0.30, along) * (1.0 - smoothstep(0.70, 1.85, along));
+    float dust  = 0.25 + 0.75 * noise(vec2(perp*13.0, along*2.2 - t*0.09 + fi*4.0));
+    acc += mix(uC1, uC2, hash(vec2(fi, 7.7))) * body * reach * dust * 0.032 * fShaft;
+  }
+
+  /* ===== 光源呼吸 ===== */
+  acc += uC1 * (exp(-dc*dc*120.0) * 0.055 + exp(-dc*dc*7.0) * 0.022) * fShaft;
+  acc += uC2 * exp(-abs(rl.x) * 52.0) * exp(-abs(rl.y) * 13.0) * 0.030;
+
+  /* ===== 景深微尘 ===== */
+  for(int LY = 0; LY < 3; LY++){
+    float ly    = float(LY);
+    float depth = 0.30 + ly * 0.34;
+    for(int i = 0; i < 16; i++){
+      float fi = float(i);
+      float h1 = hash(vec2(fi*1.37 + ly*7.1, sd*13.0 + 0.5));
+      float h2 = hash(vec2(fi*2.11 + ly*3.7, sd*29.0 + 1.5));
+      float h3 = hash(vec2(fi*0.77 + ly*5.3, sd*41.0 + 2.5));
+
+      float ph = fract(h3 + t * (0.010 + 0.026 * h1));
+      if(dirY > 0.0) ph = 1.0 - ph;
+      float py = -0.72 + ph * 1.48;
+      float fadeY = smoothstep(0.0, 0.10, ph) * (1.0 - smoothstep(0.88, 1.0, ph));
+
+      vec2 pos = vec2((h1 - 0.5) * 2.10 + sin(t*0.22 + h2*6.28) * 0.020,
+                      py + cos(t*0.18 + h3*6.28) * 0.014);
+
+      vec2  dd = q - pos;
+      float dist = length(dd);
+      float size = mix(0.0016, 0.0046, depth) * (0.55 + 1.10 * h2);
+      float core = smoothstep(size, 0.0, dist);
+      float halo = exp(-dist*dist*mix(26000.0, 2600.0, depth)) * 0.26;
+      float soft = mix(1.0, 0.30 + 0.70 * h2, depth);
+      float nearL = 0.40 + 1.60 * exp(-length(pos - L) * 1.55);
+      float dens = 0.30 + 0.70 * exp(-dc * 1.05);
+
+      acc += mix(uC1, uC2, h3) * (core + halo) * soft * fadeY * nearL * dens
+           * (0.34 + 0.66 * depth) * 0.85 * fPart;
+    }
+  }
+
+  /* ===== 沿主轴的粒子流 ===== */
+  if(fFall > 0.001){
+    for(int i = 0; i < 26; i++){
+      float fi = float(i);
+      float h1 = hash(vec2(fi*3.11, sd*17.0));
+      float h2 = hash(vec2(fi*1.93, sd*23.0));
+      float h3 = hash(vec2(fi*0.61, sd*31.0));
+      float ph = fract(h1 + t * (0.13 + 0.11 * h2));
+      float y  = L.y - ph * 1.15;
+      float sx = 0.028 + 0.085 * ph;
+      float x  = L.x + (h3 - 0.5) * 2.0 * sx + sin(ph*6.5 + t*1.1 + fi) * 0.007;
+      vec2  dd = q - vec2(x, y);
+      float dist = length(dd);
+      float size = mix(0.0042, 0.0014, ph) * (0.60 + 0.80 * h1);
+      float br = smoothstep(size, 0.0, dist) + exp(-dot(dd,dd) * 5200.0) * 0.16;
+      acc += mix(uC1, uC2, h2) * br * (0.40 + 0.60*(1.0 - ph)) * 0.60 * fFall;
+    }
+  }
+
+  /* ===== 环绕轨道 ===== */
+  if(fRing > 0.001){
+    for(int i = 0; i < 22; i++){
+      float fi = float(i);
+      float h1 = hash(vec2(fi*2.7, sd*31.0));
+      float a  = fi / 22.0 * 6.28318 + t * (0.09 + 0.09 * h1);
+      float rad = 0.21 + 0.060 * hash(vec2(fi*1.3, sd*7.0));
+      vec2  pos = L + vec2(cos(a) * rad * 1.26, sin(a) * rad * 0.96);
+      vec2  dd = q - pos;
+      float dist = length(dd);
+      float size = 0.0018 + 0.0022 * h1;
+      float br = smoothstep(size, 0.0, dist) + exp(-dot(dd,dd) * 8000.0) * 0.20;
+      acc += mix(uC1, uC2, h1) * br * 0.55 * fRing;
+    }
+  }
+
+  /* ===== 缓慢扫描带：让画面始终在呼吸 ===== */
+  acc += uC1 * exp(-pow((uv.y - (1.0 - fract(t * 0.030))) * 17.0, 2.0)) * 0.010;
+
+  /* ===== 颗粒 ===== */
+  acc += (hash(uv * uRes + fract(t) * 13.0) - 0.42) * 0.016;
+
+  gl_FragColor = vec4(max(acc, 0.0), 1.0);
+}
+`;
+
+let prog = null, U = {}, raf = 0;
+let T = 0, last = performance.now();
+const M = {x:0, y:0, tx:0, ty:0};
+
+function hex2rgb(h){
+  h = h.replace('#','');
+  return [parseInt(h.slice(0,2),16)/255, parseInt(h.slice(2,4),16)/255, parseInt(h.slice(4,6),16)/255];
+}
+
+function initGL(){
+  if(!gl) return false;
+  const vs = gl.createShader(gl.VERTEX_SHADER);
+  gl.shaderSource(vs, VERT); gl.compileShader(vs);
+  const fs = gl.createShader(gl.FRAGMENT_SHADER);
+  gl.shaderSource(fs, FRAG); gl.compileShader(fs);
+  if(!gl.getShaderParameter(fs, gl.COMPILE_STATUS)){
+    console.warn('shader:', gl.getShaderInfoLog(fs));
+    return false;
+  }
+  prog = gl.createProgram();
+  gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+  if(!gl.getProgramParameter(prog, gl.LINK_STATUS)){
+    console.warn('link:', gl.getProgramInfoLog(prog));
+    return false;
+  }
+  gl.useProgram(prog);
+
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const aP = gl.getAttribLocation(prog, 'aP');
+  gl.enableVertexAttribArray(aP);
+  gl.vertexAttribPointer(aP, 2, gl.FLOAT, false, 0, 0);
+
+  ['uRes','uT','uM','uC1','uC2','uMode','uSeed','uO'].forEach(n => U[n] = gl.getUniformLocation(prog, n));
+  gl.viewport(0, 0, cv.width, cv.height);
+  return true;
+}
+
+/* ---------- 页面 ---------- */
+const slides = [...document.querySelectorAll('.s')];
+const dotsBox = document.getElementById('dots');
+const cnt = document.getElementById('cnt');
+const progBar = document.querySelector('#prog i');
+let cur = 0, auto = false, autoTimer = 0;
+
+slides.forEach((s, i) => {
+  const d = document.createElement('i');
+  d.addEventListener('click', () => go(i));
+  dotsBox.appendChild(d);
+});
+
+function applyScene(i){
+  const s = slides[i];
+  if(!gl || !prog) return;
+  const c1 = hex2rgb(s.dataset.c1 || s.dataset.ac || '#4B8CF7');
+  const c2 = hex2rgb(s.dataset.c2 || s.dataset.c1 || '#2A5FA8');
+  gl.uniform2f(U.uRes, cv.width, cv.height);
+  gl.uniform3f(U.uC1, c1[0], c1[1], c1[2]);
+  gl.uniform3f(U.uC2, c2[0], c2[1], c2[2]);
+  gl.uniform1f(U.uMode, parseFloat(s.dataset.mode || 1));
+  gl.uniform1f(U.uSeed, parseFloat(s.dataset.seed || 0));
+  gl.uniform2f(U.uO, parseFloat(s.dataset.cx || 0.5), parseFloat(s.dataset.cy || 0.5));
+  document.documentElement.style.setProperty('--ac', s.dataset.ac || '#A9C8EE');
+}
+
+function go(i, dir){
+  i = Math.max(0, Math.min(slides.length - 1, i));
+  if(i === cur && dir !== undefined) return;
+  slides[cur].classList.remove('on');
+  cur = i;
+  slides[cur].classList.add('on');
+  applyScene(cur);
+  [...dotsBox.children].forEach((d, k) => d.classList.toggle('on', k === cur));
+  cnt.textContent = String(cur + 1).padStart(2,'0') + ' / ' + slides.length;
+  progBar.style.width = ((cur + 1) / slides.length * 100) + '%';
+  if(auto) resetAuto();
+}
+
+function resetAuto(){
+  clearTimeout(autoTimer);
+  autoTimer = setTimeout(() => {
+    if(cur < slides.length - 1) go(cur + 1, 1); else { auto = false; document.getElementById('play').textContent = '▷'; }
+  }, 9500);
+}
+
+/* ---------- 渲染循环 ---------- */
+function loop(now){
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  T += dt;
+  M.x += (M.tx - M.x) * 0.06;
+  M.y += (M.ty - M.y) * 0.06;
+  if(gl && prog){
+    gl.uniform1f(U.uT, T);
+    gl.uniform2f(U.uM, M.x, M.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+  raf = requestAnimationFrame(loop);
+}
+
+/* ---------- 交互 ---------- */
+const stage = document.getElementById('stage');
+
+function fit(){
+  const s = Math.min(innerWidth / 1280, innerHeight / 720);
+  stage.style.transform = `translate(-50%,-50%) scale(${s})`;
+}
+addEventListener('resize', fit);
+
+addEventListener('mousemove', e => {
+  M.tx = (e.clientX / innerWidth) * 2 - 1;
+  M.ty = (e.clientY / innerHeight) * 2 - 1;
+  stage.style.setProperty('--mx', (M.tx * 11).toFixed(1) + 'px');
+  stage.style.setProperty('--my', (M.ty * 8).toFixed(1) + 'px');
+});
+
+addEventListener('keydown', e => {
+  if(e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown'){ e.preventDefault(); go(cur + 1, 1); }
+  if(e.key === 'ArrowLeft'  || e.key === 'PageUp'){ e.preventDefault(); go(cur - 1, -1); }
+  if(e.key === 'm' || e.key === 'M') Music.toggle();
+  if(e.key === 'Home') go(0);
+  if(e.key === 'End')  go(slides.length - 1);
+});
+
+let wheelLock = 0;
+addEventListener('wheel', e => {
+  const now = Date.now();
+  if(now - wheelLock < 780) return;
+  if(Math.abs(e.deltaY) < 6) return;
+  wheelLock = now;
+  go(cur + (e.deltaY > 0 ? 1 : -1), e.deltaY > 0 ? 1 : -1);
+}, {passive:true});
+
+stage.addEventListener('click', e => {
+  if(e.target.closest('#hud')) return;
+  if(e.target.closest('.chip,.row,.node,.word,.step,.fs,.lay,.pd')) return;
+  const x = e.clientX / innerWidth;
+  if(x < 0.18) go(cur - 1, -1);
+  else if(x > 0.82) go(cur + 1, 1);
+});
+
+let tx0 = 0;
+addEventListener('touchstart', e => tx0 = e.touches[0].clientX, {passive:true});
+addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx0;
+  if(Math.abs(dx) > 52) go(cur + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+}, {passive:true});
+
+document.getElementById('prev').onclick = () => go(cur - 1, -1);
+document.getElementById('next').onclick = () => go(cur + 1, 1);
+document.getElementById('play').onclick = e => {
+  auto = !auto;
+  e.currentTarget.textContent = auto ? '❚❚' : '▷';
+  if(auto){ Music.start(); resetAuto(); } else clearTimeout(autoTimer);
+};
+
+/* =========================================================
+   背景音乐：程序化环境音（Web Audio 实时合成，零音频文件）
+   ========================================================= */
+const Music = (() => {
+  let ctx=null, master=null, rev=null, on=false;
+  function build(){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    ctx = new AC();
+    master = ctx.createGain(); master.gain.value = 0;
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -20; comp.ratio.value = 3;
+    master.connect(comp); comp.connect(ctx.destination);
+    rev = ctx.createConvolver();
+    const len = Math.floor(ctx.sampleRate * 3.4);
+    const ir = ctx.createBuffer(2, len, ctx.sampleRate);
+    for(let c=0;c<2;c++){
+      const d = ir.getChannelData(c);
+      for(let i=0;i<len;i++) d[i] = (Math.random()*2-1) * Math.pow(1 - i/len, 2.8);
+    }
+    rev.buffer = ir;
+    const send = ctx.createGain(); send.gain.value = 0.55;
+    rev.connect(send); send.connect(master);
+
+    // 铺底：A 小调九和弦，各自缓慢呼吸，形成没有节拍的空气感
+    [110.00, 164.81, 220.00, 246.94, 329.63].forEach((f, i) => {
+      const g = ctx.createGain();
+      g.gain.value = i === 0 ? 0.15 : 0.07;
+      const lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass'; lp.frequency.value = 760 + i * 120; lp.Q.value = 0.6;
+      const o1 = ctx.createOscillator(); o1.type = i > 1 ? 'sine' : 'triangle';
+      o1.frequency.value = f;
+      const o2 = ctx.createOscillator(); o2.type = 'sine';
+      o2.frequency.value = f * (1 + (i % 2 ? 0.0035 : -0.0035));
+      o1.connect(g); o2.connect(g); g.connect(lp);
+      lp.connect(master); lp.connect(rev);
+      const lfo = ctx.createOscillator(); lfo.frequency.value = 0.028 + i * 0.009;
+      const lg = ctx.createGain(); lg.gain.value = g.gain.value * 0.55;
+      lfo.connect(lg); lg.connect(g.gain);
+      o1.start(); o2.start(); lfo.start();
+    });
+
+    // 偶发清音：五声音阶随机落点，像远处风铃
+    const scale = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50];
+    setInterval(() => {
+      if(!on || Math.random() > 0.6) return;
+      const t = ctx.currentTime, f = scale[Math.floor(Math.random()*scale.length)];
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.085, t + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 3.6);
+      const o1 = ctx.createOscillator(); o1.type='sine'; o1.frequency.value = f;
+      const o2 = ctx.createOscillator(); o2.type='sine'; o2.frequency.value = f * 2.004;
+      const g2 = ctx.createGain(); g2.gain.value = 0.3;
+      o1.connect(g); o2.connect(g2); g2.connect(g);
+      g.connect(master); g.connect(rev);
+      o1.start(t); o2.start(t); o1.stop(t+3.8); o2.stop(t+3.8);
+    }, 2800);
+  }
+  function set(v){
+    if(!ctx) build();
+    if(ctx.state === 'suspended') ctx.resume();
+    on = v;
+    const now = ctx.currentTime;
+    master.gain.cancelScheduledValues(now);
+    master.gain.setTargetAtTime(on ? 0.13 : 0.0, now, on ? 1.6 : 0.5);
+    const b = document.getElementById('mus');
+    if(b){ b.classList.toggle('on', on); b.textContent = on ? '♬' : '♪'; }
+  }
+  return { toggle(){ set(!on); }, start(){ if(!on) set(true); }, get on(){ return on; } };
+})();
+
+document.getElementById('mus').onclick = () => Music.toggle();
+
+/* ---------- 启动 ---------- */
+fit();
+if(!initGL()) document.body.classList.add('nogl');
+if(STATIC){ T = 26.0; }
+const h = parseInt((location.hash || '').replace('#',''), 10);
+go(Number.isFinite(h) && h >= 1 ? Math.min(h, slides.length) - 1 : 0);
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
