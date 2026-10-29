@@ -15,7 +15,7 @@
     transform-origin:center center;background:#05070A;overflow:hidden;
     box-shadow:0 40px 120px rgba(0,0,0,.8)}
 
-  #gl{position:absolute;inset:-4%;display:block;
+  #gl{position:absolute;inset:-4%;display:block;pointer-events:none;
     z-index:1;mix-blend-mode:screen;opacity:.92}
 
   /* 电影级主视觉：缓慢推轨，永远在动 */
@@ -227,7 +227,7 @@
          border-left:1px solid var(--ac);max-width:560px}
 
   /* ---------- HUD ---------- */
-  #hud{position:absolute;inset:0;pointer-events:none;opacity:.78;transition:opacity .4s}
+  #hud{position:absolute;inset:0;z-index:60;pointer-events:none;opacity:.78;transition:opacity .4s}
   body:hover #hud{opacity:1}
   #prog{position:absolute;left:0;top:0;height:2px;width:100%;background:rgba(255,255,255,.06);z-index:9}
   #prog i{display:block;height:100%;width:0;background:var(--ac);box-shadow:0 0 10px var(--ac);opacity:.85;transition:width .6s cubic-bezier(.2,.8,.2,1);
